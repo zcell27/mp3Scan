@@ -26,25 +26,23 @@
   <audio id="player" controls autoplay></audio>
   <p id="songTitle"></p>
 
-  <script>
-    // Parse URL parameter ?song=
-    const params = new URLSearchParams(window.location.search);
-    const song = params.get("song");
+<script>
+  // Parse URL parameter ?song=
+  const params = new URLSearchParams(window.location.search);
+  const song = params.get("song");
 
-    const player = document.getElementById("player");
-    const title = document.getElementById("songTitle");
+  const player = document.getElementById("player");
+  const title = document.getElementById("songTitle");
 
-    if (song) {
-      player.src = `songs/${song}`;
-      title.textContent = `Now playing: ${song.replace('.mp3', '').replace(/_/g, ' ')}`;
-      // Try autoplay
-      player.play().catch(() => {
-        document.body.innerHTML += '<p>Tap anywhere to start the music 🎶</p>';
-        document.body.addEventListener('click', () => player.play(), { once: true });
-      });
-    } else {
-      title.textContent = "No song selected. Add ?song=song1.mp3 to the URL.";
-    }
-  </script>
+  if (song) {
+    player.src = `songs/${song}`;
+    title.textContent = `Now playing: ${song.replace('.mp3', '').replace(/_/g, ' ')}`;
+    // Try autoplay (will work on most desktop browsers)
+    player.play();
+  } else {
+    title.textContent = "No song selected. Add ?song=song1.mp3 to the URL.";
+  }
+</script>
 </body>
 </html>
+
