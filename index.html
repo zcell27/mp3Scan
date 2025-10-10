@@ -81,46 +81,61 @@
   <p id="songTitle"></p>
   <img id="albumArt" src="" alt="Album Art">
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const song = params.get("song");
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const song = params.get("song");
 
-    const player = document.getElementById("player");
-    const title = document.getElementById("songTitle");
-    const albumArt = document.getElementById("albumArt");
+  const player = document.getElementById("player");
+  const title = document.getElementById("songTitle");
+  const albumArt = document.getElementById("albumArt");
 
-    if (song) {
-      player.src = `songs/${song}`;
-      title.textContent = `${song.replace('.mp3', '').replace(/_/g, ' ')}`;
-      player.play();
+  if (song) {
+    player.src = `songs/${song}`;
+    title.textContent = `${song.replace('.mp3', '').replace(/_/g, ' ')}`;
+    player.play();
 
-      const imageName = song.replace('.mp3', '.jpg');
-      const imagePath = `image/${imageName}`;
+    const baseName = song.replace('.mp3', '');
+    const jpgPath = `image/${baseName}.jpg`;
+    const pngPath = `image/${baseName}.png`;
 
-      fetch(imagePath, { method: 'HEAD' })
-        .then(res => {
-          albumArt.src = res.ok ? imagePath : 'image/default.jpg';
-        })
-        .catch(() => {
-          albumArt.src = 'image/default.jpg';
-        });
-    } else {
-      title.textContent = "No song selected. Add ?song=song1.mp3 to the URL.";
-      albumArt.style.display = "none";
-    }
+    // Check JPG first, then PNG
+    fetch(jpgPath, { method: 'HEAD' })
+      .then(res => {
+        if (res.ok) {
+          albumArt.src = jpgPath;
+        } else {
+          // Try PNG next
+          fetch(pngPath, { method: 'HEAD' })
+            .then(res2 => {
+              albumArt.src = res2.ok ? pngPath : 'image/default.jpg';
+            })
+            .catch(() => {
+              albumArt.src = 'image/default.jpg';
+            });
+        }
+      })
+      .catch(() => {
+        albumArt.src = 'image/default.jpg';
+      });
 
-    // 💓 Pulse animation when playing
-    player.addEventListener('play', () => {
-      albumArt.classList.add('pulse');
-    });
+  } else {
+    title.textContent = "No song selected. Add ?song=song1.mp3 to the URL.";
+    albumArt.style.display = "none";
+  }
 
-    player.addEventListener('pause', () => {
-      albumArt.classList.remove('pulse');
-    });
+  // 💓 Pulse animation when playing
+  player.addEventListener('play', () => {
+    albumArt.classList.add('pulse');
+  });
 
-    player.addEventListener('ended', () => {
-      albumArt.classList.remove('pulse');
-    });
-  </script>
+  player.addEventListener('pause', () => {
+    albumArt.classList.remove('pulse');
+  });
+
+  player.addEventListener('ended', () => {
+    albumArt.classList.remove('pulse');
+  });
+</script>
+
 </body>
 </html>
