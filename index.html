@@ -5,19 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Music Player</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
       background: linear-gradient(135deg, #1a1a2e, #16213e);
       color: white;
       font-family: "Poppins", sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      padding-top: 100px;
     }
+
     h2 {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
+      font-size: 24px;
     }
+
     audio {
       width: 80%;
       max-width: 400px;
+      margin-bottom: 15px;
+    }
+
+    #songTitle {
+      margin: 10px 0;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    img {
+      width: 220px;
+      height: 320px;
+      object-fit: contain;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      margin-top: 20px;
+      border-radius: 15px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Pulse (heartbeat) animation */
+    .pulse {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      25% { transform: scale(1.05); }
+      50% { transform: scale(1.1); }
+      75% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 480px) {
+      img {
+        width: 200px;
+        height: 280px;
+      }
+      h2 {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
@@ -25,25 +79,48 @@
   <h2>🎵 Now Playing</h2>
   <audio id="player" controls autoplay></audio>
   <p id="songTitle"></p>
+  <img id="albumArt" src="" alt="Album Art">
 
-<script>
-  // Parse URL parameter ?song=
-  const params = new URLSearchParams(window.location.search);
-  const song = params.get("song");
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const song = params.get("song");
 
-  const player = document.getElementById("player");
-  const title = document.getElementById("songTitle");
+    const player = document.getElementById("player");
+    const title = document.getElementById("songTitle");
+    const albumArt = document.getElementById("albumArt");
 
-  if (song) {
-    player.src = `songs/${song}`;
-    title.textContent = `${song.replace('.mp3', '').replace(/_/g, ' ')}`;
-    // Try autoplay (will work on most desktop browsers)
-    player.play();
-  } else {
-    title.textContent = "No song selected. Add ?song=song1.mp3 to the URL.";
-  }
-</script>
+    if (song) {
+      player.src = `songs/${song}`;
+      title.textContent = `${song.replace('.mp3', '').replace(/_/g, ' ')}`;
+      player.play();
+
+      const imageName = song.replace('.mp3', '.jpg');
+      const imagePath = `image/${imageName}`;
+
+      fetch(imagePath, { method: 'HEAD' })
+        .then(res => {
+          albumArt.src = res.ok ? imagePath : 'image/default.jpg';
+        })
+        .catch(() => {
+          albumArt.src = 'image/default.jpg';
+        });
+    } else {
+      title.textContent = "No song selected. Add ?song=song1.mp3 to the URL.";
+      albumArt.style.display = "none";
+    }
+
+    // 💓 Pulse animation when playing
+    player.addEventListener('play', () => {
+      albumArt.classList.add('pulse');
+    });
+
+    player.addEventListener('pause', () => {
+      albumArt.classList.remove('pulse');
+    });
+
+    player.addEventListener('ended', () => {
+      albumArt.classList.remove('pulse');
+    });
+  </script>
 </body>
 </html>
-
-
