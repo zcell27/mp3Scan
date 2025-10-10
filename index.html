@@ -36,7 +36,7 @@
 
   if (song) {
     player.src = `songs/${song}`;
-    title.textContent = `Now playing: ${song.replace('.mp3', '').replace(/_/g, ' ')}`;
+    title.textContent = `${song.replace('.mp3', '').replace(/_/g, ' ')}`;
     // Try autoplay (will work on most desktop browsers)
     player.play();
   } else {
@@ -45,4 +45,5 @@
 </script>
 </body>
 </html>
+
 
