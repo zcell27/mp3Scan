@@ -22,6 +22,8 @@
       justify-content: center;
       align-items: center;
       text-align: center;
+      position: relative;
+      overflow: hidden;
     }
 
     h2 {
@@ -64,6 +66,35 @@
       100% { transform: scale(1); }
     }
 
+    /* Footer styles */
+    footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+    }
+
+.footer-logo {
+  width: 80px; /* Adjust width as needed */
+  height: 20px; /* Adjust height as needed */
+  border-radius: 0; /* Remove the circle shape */
+  object-fit: cover;
+  margin: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  vertical-align: middle;
+}
+
+    .footer-logo:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 12px rgba(79, 209, 197, 0.7);
+    }
+
     @media (max-width: 480px) {
       img {
         width: 200px;
@@ -71,6 +102,10 @@
       }
       h2 {
         font-size: 20px;
+      }
+      .footer-logo {
+        width: 60px;
+        height: 20px;
       }
     }
   </style>
@@ -81,6 +116,13 @@
   <p id="songTitle"></p>
   <img id="albumArt" src="" alt="Album Art">
 
+  <!-- 🎧 Footer -->
+  <footer>
+    <p>Made with 💙 by</p>
+   <a href="https://web.facebook.com/joezelbermudez"> <img src="mylogo.png" alt="Logo" class="footer-logo"></a>
+    <span>© <span id="year"></span></span>
+  </footer>
+
 <script>
   const params = new URLSearchParams(window.location.search);
   const song = params.get("song");
@@ -88,6 +130,8 @@
   const player = document.getElementById("player");
   const title = document.getElementById("songTitle");
   const albumArt = document.getElementById("albumArt");
+  const year = document.getElementById("year");
+  year.textContent = new Date().getFullYear();
 
   if (song) {
     player.src = `songs/${song}`;
@@ -104,7 +148,6 @@
         if (res.ok) {
           albumArt.src = jpgPath;
         } else {
-          // Try PNG next
           fetch(pngPath, { method: 'HEAD' })
             .then(res2 => {
               albumArt.src = res2.ok ? pngPath : 'image/default.jpg';
@@ -117,7 +160,6 @@
       .catch(() => {
         albumArt.src = 'image/default.jpg';
       });
-
   } else {
     title.textContent = "No song selected. Add ?song=song1.mp3 to the URL.";
     albumArt.style.display = "none";
