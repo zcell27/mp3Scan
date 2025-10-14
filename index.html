@@ -29,6 +29,10 @@ body {
   overflow-y: auto; /* Enable vertical scrolling */
   scroll-behavior: smooth; /* Smooth scrolling effect */
 }
+h1 {
+  color: green;
+  -webkit-text-stroke: .5px white; /* white border */
+}
 
 
     h2 {
@@ -116,6 +120,7 @@ body {
   </style>
 </head>
 <body>
+  <h1>Spotifycard Playlist</h1>
   <h2>🎵 Now Playing</h2>
   <audio id="player" controls autoplay></audio>
   <p id="songTitle"></p>
@@ -182,9 +187,18 @@ body {
   player.addEventListener('ended', () => {
     albumArt.classList.remove('pulse');
   });
+
+  document.body.addEventListener("click", () => {
+  if (player.paused) {
+    player.play();
+    albumArt.classList.add("pulse");
+  } else {
+    player.pause();
+    albumArt.classList.remove("pulse");
+  }
+});
+
 </script>
 
 </body>
 </html>
-
-
