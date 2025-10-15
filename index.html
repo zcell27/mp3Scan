@@ -35,6 +35,7 @@ h1 {
 }
 
 
+
     h2 {
       margin-bottom: 15px;
       font-size: 24px;
@@ -74,6 +75,15 @@ h1 {
       75% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
+
+#songTitle {
+  display: none;
+}
+.playing-bg {
+  animation: colorPulse 10s infinite alternate;
+  background-size: 400% 400%;
+  transition: background 1s ease-in-out;
+}
 
     /* Footer styles */
     footer {
@@ -117,9 +127,16 @@ h1 {
         height: 20px;
       }
     }
-    #songTitle {
-  display: none;
+    #equalizerCanvas {
+  width: 80%;
+  max-width: 400px;
+  height: 100px;
+  margin-top: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 10px rgba(79, 209, 197, 0.4);
 }
+
   </style>
 </head>
 <body>
@@ -127,7 +144,9 @@ h1 {
   <h2>🎵 Now Playing</h2>
   <audio id="player" controls autoplay></audio>
   <p id="songTitle"></p>
+  <canvas id="equalizerCanvas" width="400" height="100"></canvas>
   <img id="albumArt" src="" alt="Album Art">
+
 
   <!-- 🎧 Footer -->
   <footer>
@@ -179,17 +198,20 @@ h1 {
   }
 
   // 💓 Pulse animation when playing
-  player.addEventListener('play', () => {
-    albumArt.classList.add('pulse');
-  });
+player.addEventListener('play', () => {
+  albumArt.classList.add('pulse');
+});
 
-  player.addEventListener('pause', () => {
-    albumArt.classList.remove('pulse');
-  });
+player.addEventListener('pause', () => {
+  albumArt.classList.remove('pulse');
 
-  player.addEventListener('ended', () => {
-    albumArt.classList.remove('pulse');
-  });
+});
+
+player.addEventListener('ended', () => {
+  albumArt.classList.remove('pulse');
+
+});
+
 
   document.body.addEventListener("click", () => {
   if (player.paused) {
@@ -201,12 +223,96 @@ h1 {
   }
 });
 
+const canvas = document.getElementById("equalizerCanvas");
+const ctx = canvas.getContext("2d");
+let audioCtx, analyser, source, dataArray, bufferLength, animationId;
+
+// 🎵 Setup AudioContext for real-time visualization
+function setupEqualizer() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    source = audioCtx.createMediaElementSource(player);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    analyser.fftSize = 128; // smoother animation, more bars
+    bufferLength = analyser.frequencyBinCount;
+    dataArray = new Uint8Array(bufferLength);
+
+    // For smooth fading effect
+    barHeights = new Float32Array(bufferLength).fill(0);
+  }
+}
+
+// 🎨 Draw smooth colorful equalizer bars
+function drawEqualizer() {
+  animationId = requestAnimationFrame(drawEqualizer);
+  analyser.getByteFrequencyData(dataArray);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const barWidth = (canvas.width / bufferLength) * 1.4;
+  let x = 0;
+
+  for (let i = 0; i < bufferLength; i++) {
+    // Smooth transition: slowly follow the new data value
+    const targetHeight = dataArray[i] / 2.2;
+    barHeights[i] += (targetHeight - barHeights[i]) * 0.2; // easing factor
+
+    // 🌈 Dynamic color gradient (based on bar index + volume)
+    const hue = (i * 10 + barHeights[i]) % 360;
+    const saturation = 90;
+    const lightness = Math.min(50 + barHeights[i] / 4, 70);
+
+    // Slight glowing gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, `hsl(${(hue + 20) % 360}, ${saturation}%, ${lightness + 10}%)`);
+    gradient.addColorStop(1, `hsl(${hue}, ${saturation}%, ${lightness - 10}%)`);
+    ctx.fillStyle = gradient;
+
+    // Draw bar with rounded corners
+    const radius = 3;
+    const barHeight = barHeights[i];
+    ctx.beginPath();
+    ctx.moveTo(x, canvas.height);
+    ctx.lineTo(x, canvas.height - barHeight + radius);
+    ctx.quadraticCurveTo(x, canvas.height - barHeight, x + radius, canvas.height - barHeight);
+    ctx.lineTo(x + barWidth - radius, canvas.height - barHeight);
+    ctx.quadraticCurveTo(x + barWidth, canvas.height - barHeight, x + barWidth, canvas.height - barHeight + radius);
+    ctx.lineTo(x + barWidth, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+
+    // Optional: slight body glow pulse based on average loudness
+    if (i % 5 === 0 && i < 40) {
+      const avg = dataArray.slice(0, 32).reduce((a, b) => a + b, 0) / 32;
+      document.body.style.background = `radial-gradient(circle at center, hsl(${hue}, 70%, ${15 + avg / 20}%), #0a0a1a 80%)`;
+    }
+
+    x += barWidth + 1;
+  }
+}
+
+// 🟢 Start Equalizer when playing
+player.addEventListener("play", () => {
+  setupEqualizer();
+  audioCtx.resume();
+  canvas.style.display = "block";
+  drawEqualizer();
+});
+
+// 🔴 Stop Equalizer when paused or ended
+player.addEventListener("pause", () => {
+  cancelAnimationFrame(animationId);
+});
+
+player.addEventListener("ended", () => {
+  cancelAnimationFrame(animationId);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+
 </script>
 
 </body>
 </html>
-
-
-
-
-
