@@ -76,9 +76,14 @@ h1 {
       100% { transform: scale(1); }
     }
 
-#songTitle {
-  display: none;
-}
+    #player {
+      margin-top: 5px;
+      height: 30px;
+    }
+    
+    #songTitle {
+      display: none;
+    }
 .playing-bg {
   animation: colorPulse 10s infinite alternate;
   background-size: 400% 400%;
@@ -142,9 +147,9 @@ h1 {
 <body>
   <h1>Spotifycard Playlist</h1>
   <h2>🎵 Now Playing</h2>
-  <audio id="player" controls autoplay></audio>
   <p id="songTitle"></p>
   <canvas id="equalizerCanvas" width="400" height="100"></canvas>
+  <audio id="player" controls autoplay></audio>
   <img id="albumArt" src="" alt="Album Art">
 
 
@@ -316,3 +321,4 @@ player.addEventListener("ended", () => {
 
 </body>
 </html>
+
