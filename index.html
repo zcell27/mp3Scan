@@ -157,7 +157,7 @@ h1 {
   <footer>
     <p>Made with 💙 by</p>
    <a href="https://web.facebook.com/joezelbermudez"> <img src="mylogo.png" alt="Logo" class="footer-logo"></a>
-    <span>© <span id="year"></span></span>
+    <span>| © 2025</span>
   </footer>
 
 <script>
@@ -167,8 +167,6 @@ h1 {
   const player = document.getElementById("player");
   const title = document.getElementById("songTitle");
   const albumArt = document.getElementById("albumArt");
-  const year = document.getElementById("year");
-  year.textContent = new Date().getFullYear();
 
   if (song) {
     player.src = `songs/${song}`;
@@ -321,4 +319,5 @@ player.addEventListener("ended", () => {
 
 </body>
 </html>
+
 
